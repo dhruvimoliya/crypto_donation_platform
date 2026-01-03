@@ -1,6 +1,6 @@
 let web3;
 let contract;
-const contractAddress = "0x101F898EB3D2c4B5167985B1e44942B4739323C9";
+const contractAddress = "<INSERT YOUR CONTRACT ADDRESS HERE>";
 
 const contractABI = [
     {
