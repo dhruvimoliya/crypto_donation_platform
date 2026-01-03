@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #fafafa;
+            padding: 40px 20px;
+            color: #1a1a1a;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            margin-bottom: 50px;
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 15px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 30px;
+            margin: 30px 0;
+            padding: 20px 0;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .stat {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .stat strong {
+            display: block;
+            font-size: 20px;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        
+        .section {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            margin-bottom: 12px;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #1a1a1a;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        button {
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        button:hover {
+            background: #333;
+        }
+        
+        button:active {
+            background: #000;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #1a1a1a;
+            border: 1px solid #d0d0d0;
+        }
+        
+        .btn-secondary:hover {
+            background: #f5f5f5;
+        }
+        
+        .btn-small {
+            padding: 8px 14px;
+            font-size: 13px;
+        }
+        
+        .account-info {
+            display: inline-block;
+            background: #f5f5f5;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-top: 12px;
+            color: #666;
+        }
+        
+        .campaign-list {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .campaign {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 20px;
+        }
+        
+        .campaign h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .campaign-desc {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .campaign-meta {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 15px;
+        }
+        
+        .progress {
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #1a1a1a;
+            transition: width 0.3s;
+        }
+        
+        .campaign-stats {
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .campaign-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .campaign-actions input {
+            flex: 1;
+            margin: 0;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .stats {
+                gap: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .campaign-actions {
+                flex-direction: column;
+            }
+            
+            .campaign-actions input,
+            .campaign-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Donation Platform</h1>
+            <p class="subtitle">Blockchain-based crowdfunding</p>
+            <button onclick="connectWallet()">Connect Wallet</button>
+            <div class="account-info" id="accountInfo">Not connected</div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <strong id="totalDonated">0 ETH</strong>
+                    <span>Total Donated</span>
+                </div>
+                <div class="stat">
+                    <strong id="campaignCount">0</strong>
+                    <span>Campaigns</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="section">
+            <h2>Create Campaign</h2>
+            <input type="text" id="campaignTitle" placeholder="Campaign title">
+            <textarea id="campaignDesc" placeholder="Description"></textarea>
+            <input type="number" id="campaignGoal" placeholder="Goal amount (ETH)" step="0.1">
+            <button onclick="createCampaign()">Create</button>
+        </div>
+
+        <div class="section">
+            <h2>Campaigns</h2>
+            <div class="campaign-list" id="campaignList">
+                <div class="empty-state">No campaigns yet</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
